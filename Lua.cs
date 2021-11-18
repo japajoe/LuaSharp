@@ -31,6 +31,9 @@ namespace LuaSharp
         internal static extern void luaAPI_GetGlobal(out IntPtr L, string name);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_GetTable(out IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int luaAPI_GetTop(out IntPtr L);
         
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
@@ -44,24 +47,9 @@ namespace LuaSharp
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool luaAPI_IsTable(out IntPtr L, int stackIndex);
-        
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_Error_Callback(luaErrorCallback callback);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_Function(out IntPtr L, luaFunction fn_ptr, string name);        
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_WriteLine_Callback(luaWriteLineCallback callback);     
-        
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToFloat(out IntPtr L, int stackIndex, out float number);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToInt(out IntPtr L, int stackIndex, out int number);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToString(out IntPtr L, int stackIndex, StringBuilder str);
+        internal static extern int luaAPI_PCall(out IntPtr L, int numArgs, int numReturnValues, int errorHandlingType);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void luaAPI_Pop(out IntPtr L, int stackIndex);
@@ -76,10 +64,30 @@ namespace LuaSharp
         internal static extern void luaAPI_PushInt(out IntPtr L, int value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushString(out IntPtr L, string value);
+        internal static extern void luaAPI_PushString(out IntPtr L, string value);        
+        
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_Register_Error_Callback(luaErrorCallback callback);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_SetTop(out IntPtr L, int stackIndex);
+        internal static extern void luaAPI_Register_Function(out IntPtr L, luaFunction fn_ptr, string name);        
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_Register_WriteLine_Callback(luaWriteLineCallback callback);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_SetTop(out IntPtr L, int stackIndex);           
+        
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_ToFloat(out IntPtr L, int stackIndex, out float number);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_ToInt(out IntPtr L, int stackIndex, out int number);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_ToString(out IntPtr L, int stackIndex, StringBuilder str);
+
+
 
         public static bool Dispose(out lua_State state)
         {
@@ -112,6 +120,12 @@ namespace LuaSharp
         public static void GetGlobal(out lua_State state, string name)
         {
             luaAPI_GetGlobal(out handle, name);
+            state.pointer = handle;
+        }
+
+        public static void GetTable(out lua_State state, int stackIndex)
+        {
+            luaAPI_GetTable(out handle, stackIndex);
             state.pointer = handle;
         }
 
@@ -150,30 +164,11 @@ namespace LuaSharp
             return result;
         }
 
-        public static float ToFloat(out lua_State state, int stackIndex)
+        public static int PCall(out lua_State state, int numArgs, int numReturnValues, int errorHandlingType)
         {
-            float result = 0;
-            luaAPI_ToFloat(out handle, stackIndex, out result);
+            int result = luaAPI_PCall(out handle, numArgs, numReturnValues, errorHandlingType);
             state.pointer = handle;
             return result;
-        }
-
-        public static int ToInt(out lua_State state, int stackIndex)
-        {
-            int result = 0;
-            luaAPI_ToInt(out handle, stackIndex, out result);
-            state.pointer = handle;
-            return result;
-        }  
-
-        public static string ToString(out lua_State state, int stackIndex)
-        {
-            string result = string.Empty;
-            stringBuilder.Clear();
-            stringBuilder.Append(result);
-            luaAPI_ToString(out handle, stackIndex, stringBuilder);
-            state.pointer = handle;
-            return stringBuilder.ToString();
         }
 
         public static void Pop(out lua_State state, int stackIndex)
@@ -239,5 +234,31 @@ namespace LuaSharp
             luaAPI_SetTop(out handle, stackIndex);
             state.pointer = handle;
         }
+
+        public static float ToFloat(out lua_State state, int stackIndex)
+        {
+            float result = 0;
+            luaAPI_ToFloat(out handle, stackIndex, out result);
+            state.pointer = handle;
+            return result;
+        }
+
+        public static int ToInt(out lua_State state, int stackIndex)
+        {
+            int result = 0;
+            luaAPI_ToInt(out handle, stackIndex, out result);
+            state.pointer = handle;
+            return result;
+        }  
+
+        public static string ToString(out lua_State state, int stackIndex)
+        {
+            string result = string.Empty;
+            stringBuilder.Clear();
+            stringBuilder.Append(result);
+            luaAPI_ToString(out handle, stackIndex, stringBuilder);
+            state.pointer = handle;
+            return stringBuilder.ToString();
+        }        
     }
 }
