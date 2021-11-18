@@ -40,7 +40,10 @@ namespace LuaSharp
         internal static extern bool luaAPI_IsNumber(out IntPtr L, int stackIndex);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsString(out IntPtr L, int stackIndex);        
+        internal static extern bool luaAPI_IsString(out IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_IsTable(out IntPtr L, int stackIndex);
         
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void luaAPI_Register_Error_Callback(luaErrorCallback callback);
@@ -136,6 +139,13 @@ namespace LuaSharp
         public static bool IsString(out lua_State state, int stackIndex)
         {
             bool result = luaAPI_IsString(out handle, stackIndex);
+            state.pointer = handle;
+            return result;
+        }
+
+        public static bool IsTable(out lua_State state, int stackIndex)
+        {
+            bool result = luaAPI_IsTable(out handle, stackIndex);
             state.pointer = handle;
             return result;
         }
