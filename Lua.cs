@@ -6,7 +6,7 @@ namespace LuaSharp
 {
     public delegate void luaErrorCallback(string error);
     public delegate void luaWriteLineCallback(string error);
-    public delegate int luaFunction(out lua_State state);
+    public delegate int luaFunction(lua_State state);
 
     public static class Lua
     {
