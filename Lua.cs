@@ -14,6 +14,9 @@ namespace LuaSharp
         private static IntPtr handle = IntPtr.Zero;
 
         const string NATIVELIBNAME = "lua";
+        
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_Call(out IntPtr L, int numArgs, int numReturnValues);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool luaAPI_Dispose(out IntPtr L);
@@ -90,7 +93,11 @@ namespace LuaSharp
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void luaAPI_ToString(out IntPtr L, int stackIndex, StringBuilder str);
 
-
+        public static void Call(out lua_State state, int numArgs, int numReturnValues)
+        {
+            luaAPI_Call(out handle, numArgs, numReturnValues);
+            state.pointer = handle;
+        }
 
         public static bool Dispose(out lua_State state)
         {
