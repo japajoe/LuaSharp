@@ -40,6 +40,9 @@ namespace LuaSharp
         internal static extern bool luaAPI_Initialize(out IntPtr L);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_IsFunction(out IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool luaAPI_IsNumber(out IntPtr L, int stackIndex);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
@@ -139,6 +142,13 @@ namespace LuaSharp
         public static bool Initialize(out lua_State state)
         {
             bool result = luaAPI_Initialize(out handle);
+            state.pointer = handle;
+            return result;
+        }
+
+        public static bool IsFunction(out lua_State state, int stackIndex)
+        {
+            bool result = luaAPI_IsFunction(out handle, stackIndex);
             state.pointer = handle;
             return result;
         }
