@@ -79,7 +79,8 @@ namespace LuaSharp
         internal static extern void luaAPI_Register_Function(out IntPtr L, luaFunction fn_ptr, string name);        
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_WriteLine_Callback(luaWriteLineCallback callback);
+        internal static extern void luaAPI_Register_WriteLine_Callback(IntPtr callback);
+//        internal static extern void luaAPI_Register_WriteLine_Callback(luaWriteLineCallback callback);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void luaAPI_SetTop(out IntPtr L, int stackIndex);           
@@ -243,7 +244,8 @@ namespace LuaSharp
 
         public static void RegisterWriteLineCallback(luaWriteLineCallback callback)
         {
-            luaAPI_Register_WriteLine_Callback(callback);
+            IntPtr ptr = ptr = Marshal.GetFunctionPointerForDelegate(callback);
+            luaAPI_Register_WriteLine_Callback(ptr);
         }       
 
         public static void SetTop(out lua_State state, int stackIndex)
