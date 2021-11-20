@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace LuaSharp
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct lua_State
+    public struct LuaState
     {
         public IntPtr pointer;
     }
