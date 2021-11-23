@@ -1,6 +1,9 @@
 # LuaSharp
 C# wrapper library for lua
 
+# Dependencies
+https://github.com/japajoe/lua
+
 ```csharp
 ﻿using System;
 using LuaSharp;
