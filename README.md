@@ -2,7 +2,9 @@
 C# wrapper library for lua
 
 # Dependencies
-https://github.com/japajoe/lua
+Build the native library found at https://github.com/japajoe/lua
+
+# Example code
 
 ```csharp
 ﻿using System;
