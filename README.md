@@ -1,8 +1,8 @@
 # LuaSharp
-C# wrapper library for lua
+A cross platform C# wrapper for Lua. Supports Windows, Linux and Mac.
 
 # Dependencies
-Build the native library found at https://github.com/japajoe/lua
+Build the native library found at https://github.com/japajoe/lua or check the releases.
 
 # Example code
 
