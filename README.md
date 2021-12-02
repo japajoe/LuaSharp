@@ -15,12 +15,14 @@ namespace LuaSharpApplication
     class Program
     {
         private static LuaState state = new LuaState();
+        private static LuaWriteLineCallback onWriteLine;
 
         static void Main(string[] args)
         {
             if(Lua.Initialize(out state))
             {
-                Lua.RegisterWriteLineCallback(OnWriteLine); //Bind the Lua print function to OnWriteLine
+                onWriteLine = LuaDelegate.Create<LuaWriteLineCallback>(this, "OnWriteLine");
+                Lua.RegisterWriteLineCallback(onWriteLine); //Bind the Lua print function to OnWriteLine
 
                 string code = "print(\"Hello world!\")";
                 LuaResult result = (LuaResult)Lua.DoString(out state, code);
