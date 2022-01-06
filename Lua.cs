@@ -4,280 +4,233 @@ using System.Text;
 
 namespace LuaSharp
 {
-    public delegate void LuaErrorCallback(string error);
-    public delegate void LuaWriteLineCallback(string error);
     public delegate int LuaFunction(LuaState state);
 
     public static class Lua
     {
         private static StringBuilder stringBuilder = new StringBuilder(4096);
-        private static IntPtr handle = IntPtr.Zero;
 
         const string NATIVELIBNAME = "lua";
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_Call(IntPtr L, int numArgs, int numReturnValues);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_Close(IntPtr L);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int luaAPI_DoFile(IntPtr L, string filepath);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int luaAPI_DoString(IntPtr L, string code);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_FreeCharPointer(IntPtr ptr);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int luaAPI_GetArgumentCount(IntPtr L);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_GetGlobal(IntPtr L, string name);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_GetTable(IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int luaAPI_GetTop(IntPtr L);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_IsFunction(IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_IsNumber(IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_IsString(IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_IsTable(IntPtr L, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr luaAPI_NewState();
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_OpenLibs(IntPtr L);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int luaAPI_PCall(IntPtr L, int numArgs, int numReturnValues, int errorHandlingType);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_Pop(IntPtr L, int stackIndex);
         
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Call(out IntPtr L, int numArgs, int numReturnValues);
+        internal static extern void luaAPI_PushBool(IntPtr L, bool value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_Dispose(out IntPtr L);
+        internal static extern void luaAPI_PushFloat(IntPtr L, float value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_DoFile(out IntPtr L, string filepath);
+        internal static extern void luaAPI_PushInt(IntPtr L, int value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_DoString(out IntPtr L, string code);
+        internal static extern void luaAPI_PushString(IntPtr L, string value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_GetArgumentCount(out IntPtr L);
+        internal static extern void luaAPI_Register_Function(IntPtr L, LuaFunction fn_ptr, string name);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_GetGlobal(out IntPtr L, string name);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_GetTable(out IntPtr L, int stackIndex);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_GetTop(out IntPtr L);
+        internal static extern void luaAPI_SetTop(IntPtr L, int stackIndex);           
         
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_Initialize(out IntPtr L);
+        internal static extern void luaAPI_ToFloat(IntPtr L, int stackIndex, out float number);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsFunction(out IntPtr L, int stackIndex);
+        internal static extern void luaAPI_ToInt(IntPtr L, int stackIndex, out int number);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsNumber(out IntPtr L, int stackIndex);
+        internal static extern IntPtr luaAPI_ToString(IntPtr L, int stackIndex);
 
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsString(out IntPtr L, int stackIndex);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsTable(out IntPtr L, int stackIndex);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_PCall(out IntPtr L, int numArgs, int numReturnValues, int errorHandlingType);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Pop(out IntPtr L, int stackIndex);
-        
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushBool(out IntPtr L, bool value);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushFloat(out IntPtr L, float value);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushInt(out IntPtr L, int value);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushString(out IntPtr L, string value);        
-        
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_Error_Callback(LuaErrorCallback callback);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_Function(out IntPtr L, LuaFunction fn_ptr, string name);        
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_WriteLine_Callback(IntPtr callback);
-//        internal static extern void luaAPI_Register_WriteLine_Callback(luaWriteLineCallback callback);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_SetTop(out IntPtr L, int stackIndex);           
-        
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToFloat(out IntPtr L, int stackIndex, out float number);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToInt(out IntPtr L, int stackIndex, out int number);
-
-        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToString(out IntPtr L, int stackIndex, StringBuilder str);
-
-        public static void Call(out LuaState state, int numArgs, int numReturnValues)
+        public static void Call(LuaState state, int numArgs, int numReturnValues)
         {
-            luaAPI_Call(out handle, numArgs, numReturnValues);
-            state.pointer = handle;
+            luaAPI_Call(state.pointer, numArgs, numReturnValues);
         }
 
-        public static bool Dispose(out LuaState state)
+        public static bool Close(LuaState state)
         {
-            bool result = luaAPI_Dispose(out handle);
-            state.pointer = handle;
-            return result;
+            return luaAPI_Close(state.pointer);
         }
 
-        public static int DoFile(out LuaState state, string filepath)
+        public static int DoFile(LuaState state, string filepath)
         {
-            int result = luaAPI_DoFile(out handle, filepath);
-            state.pointer = handle;
-            return result;
+            return luaAPI_DoFile(state.pointer, filepath);
         }
 
-        public static int DoString(out LuaState state, string code)
+        public static int DoString(LuaState state, string code)
         {
-            int result = luaAPI_DoString(out handle, code);
-            state.pointer = handle;
-            return result;
+            return luaAPI_DoString(state.pointer, code);
         }        
 
-        public static int GetArgumentCount(out LuaState state)        
+        public static int GetArgumentCount(LuaState state)        
         {            
-            int count = luaAPI_GetArgumentCount(out handle);
-            state.pointer = handle;
-            return count;
+            return luaAPI_GetArgumentCount(state.pointer);
         }
 
-        public static void GetGlobal(out LuaState state, string name)
+        public static void GetGlobal(LuaState state, string name)
         {
-            luaAPI_GetGlobal(out handle, name);
-            state.pointer = handle;
+            luaAPI_GetGlobal(state.pointer, name);
         }
 
-        public static void GetTable(out LuaState state, int stackIndex)
+        public static void GetTable(LuaState state, int stackIndex)
         {
-            luaAPI_GetTable(out handle, stackIndex);
-            state.pointer = handle;
+            luaAPI_GetTable(state.pointer, stackIndex);
         }
 
-        public static int GetTop(out LuaState state)
+        public static int GetTop(LuaState state)
         {
-            int result = luaAPI_GetTop(out handle);
-            state.pointer = handle;
-            return result;
+            return luaAPI_GetTop(state.pointer);
         }
 
-        public static bool Initialize(out LuaState state)
+        public static bool IsFunction(LuaState state, int stackIndex)
         {
-            bool result = luaAPI_Initialize(out handle);
-            state.pointer = handle;
-            return result;
+            return luaAPI_IsFunction(state.pointer, stackIndex);
         }
 
-        public static bool IsFunction(out LuaState state, int stackIndex)
+        public static bool IsNumber(LuaState state, int stackIndex)
         {
-            bool result = luaAPI_IsFunction(out handle, stackIndex);
-            state.pointer = handle;
-            return result;
+            return luaAPI_IsNumber(state.pointer, stackIndex);
         }
 
-        public static bool IsNumber(out LuaState state, int stackIndex)
+        public static bool IsString(LuaState state, int stackIndex)
         {
-            bool result = luaAPI_IsNumber(out handle, stackIndex);
-            state.pointer = handle;
-            return result;
+            return luaAPI_IsString(state.pointer, stackIndex);
         }
 
-        public static bool IsString(out LuaState state, int stackIndex)
+        public static bool IsTable(LuaState state, int stackIndex)
         {
-            bool result = luaAPI_IsString(out handle, stackIndex);
-            state.pointer = handle;
-            return result;
+            return luaAPI_IsTable(state.pointer, stackIndex);
         }
 
-        public static bool IsTable(out LuaState state, int stackIndex)
+        public static LuaState NewState()
         {
-            bool result = luaAPI_IsTable(out handle, stackIndex);
+            IntPtr handle = luaAPI_NewState();
+            LuaState state = new LuaState();
             state.pointer = handle;
-            return result;
+            return state;
         }
 
-        public static int PCall(out LuaState state, int numArgs, int numReturnValues, int errorHandlingType)
+        public static void OpenLibs(LuaState state)
         {
-            int result = luaAPI_PCall(out handle, numArgs, numReturnValues, errorHandlingType);
-            state.pointer = handle;
-            return result;
+            luaAPI_OpenLibs(state.pointer);
         }
 
-        public static void Pop(out LuaState state, int stackIndex)
+        public static int PCall(LuaState state, int numArgs, int numReturnValues, int errorHandlingType)
+        {
+            return luaAPI_PCall(state.pointer, numArgs, numReturnValues, errorHandlingType);
+        }
+
+        public static void Pop(LuaState state, int stackIndex)
         {            
-            luaAPI_Pop(out handle, stackIndex);
-            state.pointer = handle;
+            luaAPI_Pop(state.pointer, stackIndex);
         }
 
-        public static void PushBool(out LuaState state, bool value)
+        public static void PushBool(LuaState state, bool value)
         {
-            luaAPI_PushBool(out handle, value);
-            state.pointer = handle;
+            luaAPI_PushBool(state.pointer, value);
         }        
 
-        public static void PushFloat(out LuaState state, float value)
+        public static void PushFloat(LuaState state, float value)
         {
-            luaAPI_PushFloat(out handle, value);
-            state.pointer = handle;
+            luaAPI_PushFloat(state.pointer, value);
         }
 
-        public static void PushInt(out LuaState state, int value)
+        public static void PushInt(LuaState state, int value)
         {
-            luaAPI_PushInt(out handle, value);
-            state.pointer = handle;
+            luaAPI_PushInt(state.pointer, value);
         }  
 
-        public static void PushNumber(out LuaState state, int value)
+        public static void PushNumber(LuaState state, int value)
         {
-            luaAPI_PushInt(out handle, value);
-            state.pointer = handle;            
+            luaAPI_PushInt(state.pointer, value);            
         }
 
-        public static void PushNumber(out LuaState state, float value)
+        public static void PushNumber(LuaState state, float value)
         {
-            luaAPI_PushFloat(out handle, value);
-            state.pointer = handle;            
+            luaAPI_PushFloat(state.pointer, value);            
         }
 
-        public static void PushString(out LuaState state, string value)
+        public static void PushString(LuaState state, string value)
         {            
-            luaAPI_PushString(out handle, value);
-            state.pointer = handle;
+            luaAPI_PushString(state.pointer, value);
         }
 
-        public static void RegisterErrorCallback(LuaErrorCallback callback)
+        public static void RegisterFunction(LuaState state, LuaFunction fn_ptr, string name)
         {
-            luaAPI_Register_Error_Callback(callback);
-        }
-
-        public static void RegisterFunction(out LuaState state, LuaFunction fn_ptr, string name)
-        {
-            luaAPI_Register_Function(out handle, fn_ptr, name);
-            state.pointer = handle;
-        }        
-
-        public static void RegisterWriteLineCallback(LuaWriteLineCallback callback)
-        {
-            IntPtr ptr = ptr = Marshal.GetFunctionPointerForDelegate(callback);
-            luaAPI_Register_WriteLine_Callback(ptr);
+            luaAPI_Register_Function(state.pointer, fn_ptr, name);
         }       
 
-        public static void SetTop(out LuaState state, int stackIndex)
+        public static void SetTop(LuaState state, int stackIndex)
         {
-            luaAPI_SetTop(out handle, stackIndex);
-            state.pointer = handle;
+            luaAPI_SetTop(state.pointer, stackIndex);
         }
 
-        public static float ToFloat(out LuaState state, int stackIndex)
+        public static float ToFloat(LuaState state, int stackIndex)
         {
-            float result = 0;
-            luaAPI_ToFloat(out handle, stackIndex, out result);
-            state.pointer = handle;
+            luaAPI_ToFloat(state.pointer, stackIndex, out float result);
             return result;
         }
 
-        public static int ToInt(out LuaState state, int stackIndex)
+        public static int ToInt(LuaState state, int stackIndex)
         {
-            int result = 0;
-            luaAPI_ToInt(out handle, stackIndex, out result);
-            state.pointer = handle;
+            luaAPI_ToInt(state.pointer, stackIndex, out int result);
             return result;
         }  
 
-        public static string ToString(out LuaState state, int stackIndex)
+        public static string ToString(LuaState state, int stackIndex)
         {
-            string result = string.Empty;
-            stringBuilder.Clear();
-            stringBuilder.Append(result);
-            luaAPI_ToString(out handle, stackIndex, stringBuilder);
-            state.pointer = handle;
-            return stringBuilder.ToString();
-        }        
+            IntPtr str = luaAPI_ToString(state.pointer, stackIndex);
+            string text = Marshal.PtrToStringAuto(str);
+            luaAPI_FreeCharPointer(str);
+            return text;
+        }
     }
 }
