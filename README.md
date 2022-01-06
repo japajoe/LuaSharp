@@ -7,39 +7,42 @@ Build the native library found at https://github.com/japajoe/lua or check the re
 # Example code
 
 ```csharp
-﻿using System;
+using System;
 using LuaSharp;
 
 namespace LuaSharpApplication
 {
     class Program
     {
-        private static LuaState state = new LuaState();
-        private static LuaWriteLineCallback onWriteLine;
+        private static LuaFunction printFunction;
 
         static void Main(string[] args)
         {
-            if(Lua.Initialize(out state))
+            LuaState state = Lua.NewState();
+            Lua.OpenLibs(state);
+            printFunction = Print;
+            Lua.RegisterFunction(state, printFunction, "print");
+            string code = "print('Hello world!')";
+            LuaResult result = (LuaResult)Lua.DoString(state, code);
+
+            if (result != LuaResult.OK)
             {
-                onWriteLine = LuaDelegate.Create<LuaWriteLineCallback>(this, "OnWriteLine");
-                Lua.RegisterWriteLineCallback(onWriteLine); //Bind the Lua print function to OnWriteLine
-
-                string code = "print(\"Hello world!\")";
-                LuaResult result = (LuaResult)Lua.DoString(out state, code);
-
-                if (result != LuaResult.OK)
-                {
-                    string error = Lua.ToString(out state, -1);
-                    Console.WriteLine(error);
-                }
-
-                Lua.Dispose(out state);
+                string error = Lua.ToString(state, -1);
+                Console.WriteLine(error);
             }
+
+            Lua.Close(state);            
         }
 
-        private static void OnWriteLine(string message)
+        private static int Print(LuaState s)
         {
-            Console.WriteLine(message);
+            if(Lua.GetTop(s) != 1)
+                return -1;
+
+            string str = Lua.ToString(s, 1);
+
+            Console.WriteLine(str);
+            return 0;
         }
     }
 }
