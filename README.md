@@ -23,9 +23,8 @@ namespace LuaSharpApplication
             printFunction = Print;
             Lua.RegisterFunction(state, printFunction, "print");
             string code = "print('Hello world!')";
-            LuaResult result = (LuaResult)Lua.DoString(state, code);
 
-            if (result != LuaResult.OK)
+            if (Lua.DoString(state, code) != LuaResult.OK)
             {
                 string error = Lua.ToString(state, -1);
                 Console.WriteLine(error);

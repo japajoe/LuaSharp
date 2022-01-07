@@ -100,14 +100,14 @@ namespace LuaSharp
             return luaAPI_Close(state.pointer);
         }
 
-        public static int DoFile(LuaState state, string filepath)
+        public static LuaResult DoFile(LuaState state, string filepath)
         {
-            return luaAPI_DoFile(state.pointer, filepath);
+            return (LuaResult)luaAPI_DoFile(state.pointer, filepath);
         }
 
-        public static int DoString(LuaState state, string code)
+        public static LuaResult DoString(LuaState state, string code)
         {
-            return luaAPI_DoString(state.pointer, code);
+            return (LuaResult)luaAPI_DoString(state.pointer, code);
         }        
 
         public static int GetArgumentCount(LuaState state)        
