@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LuaSharp
 {
@@ -8,87 +7,94 @@ namespace LuaSharp
 
     public static class Lua
     {
-        private static StringBuilder stringBuilder = new StringBuilder(4096);
-
         const string NATIVELIBNAME = "lua";
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Call(IntPtr L, int numArgs, int numReturnValues);
+        internal static extern void luaAPI_Call(IntPtr state, int numArgs, int numReturnValues);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_Close(IntPtr L);
+        internal static extern bool luaAPI_Close(IntPtr state);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_DoFile(IntPtr L, string filepath);
+        internal static extern int luaAPI_DoFile(IntPtr state, string filepath);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_DoString(IntPtr L, string code);
+        internal static extern int luaAPI_DoString(IntPtr state, string code);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void luaAPI_FreeCharPointer(IntPtr ptr);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_GetArgumentCount(IntPtr L);
+        internal static extern int luaAPI_GetArgumentCount(IntPtr state);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_GetGlobal(IntPtr L, string name);
+        internal static extern void luaAPI_GetGlobal(IntPtr state, string name);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_GetTable(IntPtr L, int stackIndex);
+        internal static extern void luaAPI_GetTable(IntPtr state, int stackIndex);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_GetTop(IntPtr L);
+        internal static extern int luaAPI_GetTop(IntPtr state);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsFunction(IntPtr L, int stackIndex);
+        internal static extern bool luaAPI_IsFunction(IntPtr state, int stackIndex);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsNumber(IntPtr L, int stackIndex);
+        internal static extern bool luaAPI_IsNumber(IntPtr state, int stackIndex);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsString(IntPtr L, int stackIndex);
+        internal static extern bool luaAPI_IsString(IntPtr state, int stackIndex);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool luaAPI_IsTable(IntPtr L, int stackIndex);
+        internal static extern bool luaAPI_IsTable(IntPtr state, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool luaAPI_IsUserData(IntPtr state, int stackIndex);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr luaAPI_NewState();
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_OpenLibs(IntPtr L);
+        internal static extern void luaAPI_OpenLibs(IntPtr state);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int luaAPI_PCall(IntPtr L, int numArgs, int numReturnValues, int errorHandlingType);
+        internal static extern int luaAPI_PCall(IntPtr state, int numArgs, int numReturnValues, int errorHandlingType);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Pop(IntPtr L, int stackIndex);
+        internal static extern void luaAPI_Pop(IntPtr state, int stackIndex);
         
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushBool(IntPtr L, bool value);
+        internal static extern void luaAPI_PushBool(IntPtr state, bool value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushFloat(IntPtr L, float value);
+        internal static extern void luaAPI_PushFloat(IntPtr state, float value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushInt(IntPtr L, int value);
+        internal static extern void luaAPI_PushInt(IntPtr state, int value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_PushString(IntPtr L, string value);
+        internal static extern void luaAPI_PushLightUserData(IntPtr state, IntPtr userData);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_Register_Function(IntPtr L, LuaFunction fn_ptr, string name);
+        internal static extern void luaAPI_PushString(IntPtr state, string value);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_SetTop(IntPtr L, int stackIndex);           
+        internal static extern void luaAPI_Register_Function(IntPtr state, LuaFunction fn_ptr, string name);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void luaAPI_SetTop(IntPtr state, int stackIndex);           
         
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToFloat(IntPtr L, int stackIndex, out float number);
+        internal static extern void luaAPI_ToFloat(IntPtr state, int stackIndex, out float number);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void luaAPI_ToInt(IntPtr L, int stackIndex, out int number);
+        internal static extern void luaAPI_ToInt(IntPtr state, int stackIndex, out int number);
 
         [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr luaAPI_ToString(IntPtr L, int stackIndex);
+        internal static extern IntPtr luaAPI_ToString(IntPtr state, int stackIndex);
+
+        [DllImport(NATIVELIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr luaAPI_ToUserData(IntPtr state, int stackIndex);
 
         public static void Call(LuaState state, int numArgs, int numReturnValues)
         {
@@ -145,6 +151,11 @@ namespace LuaSharp
             return luaAPI_IsString(state.pointer, stackIndex);
         }
 
+        public static bool IsUserData(LuaState state, int stackIndex)
+        {
+            return luaAPI_IsUserData(state.pointer, stackIndex);
+        }
+
         public static bool IsTable(LuaState state, int stackIndex)
         {
             return luaAPI_IsTable(state.pointer, stackIndex);
@@ -187,6 +198,11 @@ namespace LuaSharp
         {
             luaAPI_PushInt(state.pointer, value);
         }  
+
+        public static void PushLightUserData(LuaState state, IntPtr userData)
+        {
+            luaAPI_PushLightUserData(state.pointer, userData);
+        }
 
         public static void PushNumber(LuaState state, int value)
         {
@@ -231,6 +247,13 @@ namespace LuaSharp
             string text = Marshal.PtrToStringAuto(str);
             luaAPI_FreeCharPointer(str);
             return text;
+        }
+
+        public static T ToUserData<T>(LuaState state, int stackIndex)
+        {
+            IntPtr userData = luaAPI_ToUserData(state.pointer, stackIndex);
+            GCHandle gch = GCHandle.FromIntPtr(userData);
+            return (T)gch.Target;
         }
     }
 }
