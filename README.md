@@ -16,6 +16,7 @@ namespace LuaSharpApplication
     {
         private static LuaFunction printFunction;
 
+        //Example of how to call a C# function from Lua
         static void Main(string[] args)
         {
             LuaState state = Lua.NewState();
